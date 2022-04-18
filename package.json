@@ -4,7 +4,7 @@
   "description": "A node version of my Lihouses house rental application",
   "main": "index.js",
   "scripts": {
-    "dev": "odemon src/index.js"
+    "dev": "nodemon src/index.js"
   },
   "repository": {
     "type": "git",
@@ -19,6 +19,8 @@
   "homepage": "https://github.com/kelibst/nodeLiHouses#readme",
   "dependencies": {
     "axios": "^0.26.1",
+    "bcrypt": "^5.0.1",
+    "bcryptjs": "^2.4.3",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "mongodb": "^4.5.0",
