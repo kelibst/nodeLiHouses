@@ -1,0 +1,29 @@
+{
+  "name": "nodelihouses",
+  "version": "1.0.0",
+  "description": "A node version of my Lihouses house rental application",
+  "main": "index.js",
+  "scripts": {
+    "dev": "odemon src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kelibst/nodeLiHouses.git"
+  },
+  "keywords": [],
+  "author": "Kelibst",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kelibst/nodeLiHouses/issues"
+  },
+  "homepage": "https://github.com/kelibst/nodeLiHouses#readme",
+  "dependencies": {
+    "axios": "^0.26.1",
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "mongodb": "^4.5.0",
+    "mongoose": "^6.2.10",
+    "nodemon": "^2.0.15",
+    "validator": "^13.7.0"
+  }
+}
