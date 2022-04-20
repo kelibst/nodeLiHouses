@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
+const { Schema } = mongoose;
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -50,6 +51,8 @@ const userSchema = new mongoose.Schema({
       }
     },
   },
+  favorites: [{ type: Schema.Types.ObjectId, ref: "House" }],
+  houses: [{ type: Schema.Types.ObjectId, ref: "House", unique: true }],
   createdAt: {
     type: Date,
     required: true,
@@ -69,6 +72,6 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-const User = mongoose.model("Users", userSchema);
+const User = mongoose.model("User", userSchema);
 
 module.exports = User;
