@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
 const { Schema } = mongoose;
+const jwt = require("jsonwebtoken");
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -52,7 +53,14 @@ const userSchema = new mongoose.Schema({
     },
   },
   favorites: [{ type: Schema.Types.ObjectId, ref: "House" }],
-  houses: [{ type: Schema.Types.ObjectId, ref: "House", unique: true }],
+  tokens: [
+    {
+      token: {
+        type: String,
+        required: true,
+      },
+    },
+  ],
   createdAt: {
     type: Date,
     required: true,
@@ -63,6 +71,28 @@ const userSchema = new mongoose.Schema({
     default: Date.now(),
   },
 });
+
+userSchema.statics.findByCredentials = async (email, password) => {
+  const user = await User.findOne({ email: email?.toLowerCase() });
+  if (!user) {
+    throw new Error("Check your email");
+  }
+
+  const isMatch = await bcrypt.compare(password, user.password);
+
+  if (!isMatch) {
+    throw new Error("Unable to login, check your password");
+  }
+  return user;
+};
+
+userSchema.methods.generateAuthToken = async function () {
+  const user = this;
+  const token = jwt.sign({ _id: user._id.toString() }, "thisismynewtoken");
+  user.tokens = user.tokens.concat({ token });
+  await user.save();
+  return token;
+};
 
 userSchema.pre("save", async function (next) {
   const user = this;
