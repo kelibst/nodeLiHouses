@@ -25,7 +25,7 @@ router.get("/v1/users", async (req, res) => {
 
 router.post("/v1/users/logout", auth, async (req, res) => {
   try {
-    req.user.tokens = req.user.tokens.filfer(
+    req.user.tokens = await req.user.tokens.filter(
       (token) => token.token !== req.token
     );
 
@@ -36,7 +36,20 @@ router.post("/v1/users/logout", auth, async (req, res) => {
   }
 });
 
+router.post("/v1/users/logoutAll", auth, async (req, res) => {
+  try {
+    req.user.tokens = [];
+    await req.user.save();
+    res.status(200).send();
+  } catch (error) {
+    res.status(400);
+  }
+});
+
 router.post("/v1/users/login", async (req, res) => {
+  if (!req.body.email || !req.body.password) {
+    return res.status(400).send("Empty request body");
+  }
   try {
     const user = await User.findByCredentials(
       req.body.email,
