@@ -1,6 +1,7 @@
 const express = require("express");
 const User = require("../db/models/userModel");
 const router = new express.Router();
+const auth = require("../db/middlewares/auth");
 
 router.post("/v1/users", async (req, res) => {
   try {
@@ -17,6 +18,19 @@ router.get("/v1/users", async (req, res) => {
   try {
     const users = await User.find({});
     res.status(200).send(users);
+  } catch (error) {
+    res.status(400);
+  }
+});
+
+router.post("/v1/users/logout", auth, async (req, res) => {
+  try {
+    req.user.tokens = req.user.tokens.filfer(
+      (token) => token.token !== req.token
+    );
+
+    await req.user.save();
+    res.status(200).send();
   } catch (error) {
     res.status(400);
   }
