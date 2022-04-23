@@ -5,7 +5,10 @@ const router = new express.Router();
 
 router.post("/v1/houses", auth, async (req, res) => {
   try {
-    const house = House(req.body);
+    const house = House({
+      ...req.body,
+      author: req.user._id,
+    });
     const curHse = await house.save();
     res.status(201).send(curHse);
   } catch (error) {

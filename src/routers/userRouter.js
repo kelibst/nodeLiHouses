@@ -64,4 +64,27 @@ router.post("/v1/users/login", async (req, res) => {
   }
 });
 
+router.patch("/v1/users/", auth, async (req, res) => {
+  const updates = Object.keys(req.body);
+  const allUpdates = ["username", "email", "age", "firstname", "lastname"];
+  const isValidOp = updates.every((update) => allUpdates.includes(update));
+
+  if (!isValidOp) {
+    return res
+      .status(400)
+      .send(
+        "Invalid Operation: You are most likely trying to update a field we do not have in the db."
+      );
+  }
+  try {
+    if (!req.user) {
+      return res.status(404).send("User was not found!");
+    }
+    await req.user.updateOne(req.body);
+    res.send(req.user);
+  } catch (e) {
+    res.status(400).send(e);
+  }
+});
+
 module.exports = router;
