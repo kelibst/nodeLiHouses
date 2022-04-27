@@ -25,4 +25,14 @@ router.get("/v1/houses", async (req, res) => {
   }
 });
 
+router.get("/v1/houses/:id", auth, async (req, res) => {
+  const _id = req.params.id;
+  try {
+    const hse = await House.findById(_id);
+    res.send(hse);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
 module.exports = router;
