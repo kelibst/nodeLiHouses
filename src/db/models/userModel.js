@@ -43,12 +43,18 @@ const userSchema = new mongoose.Schema({
       }
     },
   },
-  age: {
-    type: Number,
+  dob: {
+    type: Date,
     required: true,
     validate(value) {
-      if (value < 0) {
-        throw new Error("Age must be a postive number");
+      const getPastFiveYears = new Date().getFullYear() - 5;
+      if (
+        !validator.isDate(value) ||
+        validator.isBefore(getPastFiveYears.toString())
+      ) {
+        throw new Error(
+          "You did not enter a validate date, you should at least be 5 years old."
+        );
       }
     },
   },
@@ -72,6 +78,10 @@ const userSchema = new mongoose.Schema({
     default: Date.now(),
   },
   updatedAt: {
+    type: Date,
+    default: Date.now(),
+  },
+  lastLogin: {
     type: Date,
     default: Date.now(),
   },
