@@ -64,7 +64,8 @@ router.post("/v1/users/login", async (req, res) => {
   }
 });
 
-router.patch("/v1/users/", auth, async (req, res) => {
+router.patch("/v1/users/:id", auth, async (req, res) => {
+  const _id = req.params.id;
   const updates = Object.keys(req.body);
   const allUpdates = [
     "username",
@@ -84,11 +85,43 @@ router.patch("/v1/users/", auth, async (req, res) => {
       );
   }
   try {
-    if (!req.user || !req.user?.admin) {
+    if (!req.user) {
       return res.status(404).send("User was not found!");
     }
-    await req.user.updateOne(req.body);
-    res.send(req.user);
+    if (req.user.admin || req.user._id === _id) {
+      await req.user.updateOne(req.body);
+      return res.send(req.user);
+    } else {
+      return res
+        .status(400)
+        .send({ error: "You need to be an admin to update a profile." });
+    }
+  } catch (e) {
+    res.status(400).send(e);
+  }
+});
+
+router.patch("/v1/users/:id/password", auth, async (req, res) => {
+  const _id = req.params.id;
+  const updates = Object.keys(req.body);
+  const allUpdates = ["password"];
+  const isValidOp = updates.every((update) => allUpdates.includes(update));
+
+  if (!isValidOp) {
+    return res.status(400).status(400).send("Unable to update your password.");
+  }
+  try {
+    if (!req.user) {
+      return res.status(404).send("User was not found!");
+    }
+    if (req.user.admin || req.user._id === _id) {
+      await req.user.updateOne(req.body);
+      return res.send(req.user);
+    } else {
+      return res
+        .status(400)
+        .send({ error: "You need to be an admin to update a profile." });
+    }
   } catch (e) {
     res.status(400).send(e);
   }
