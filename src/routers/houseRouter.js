@@ -35,4 +35,22 @@ router.get("/v1/houses/:id", auth, async (req, res) => {
   }
 });
 
+router.patch("/v1/houses/:id", auth, async (req, res) => {
+  const _id = req.params.id;
+
+  try {
+    const curHouse = await House.findById(_id);
+    if (req.user.admin || req.user._id === curHouse.owner) {
+      await curHouse.updateOne(req.body);
+      return res.send(curHouse);
+    } else {
+      return res
+        .status(400)
+        .send({ error: "You need to be an admin to update a house." });
+    }
+  } catch (e) {
+    res.status(400).send(e);
+  }
+});
+
 module.exports = router;

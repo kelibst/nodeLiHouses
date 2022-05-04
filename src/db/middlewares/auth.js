@@ -17,7 +17,7 @@ const auth = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    res.status(401).send({ error: "You are not logged in!" });
+    res.status(201).send({ error: "Authentication error" });
   }
 };
 

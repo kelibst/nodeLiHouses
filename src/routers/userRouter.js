@@ -67,14 +67,7 @@ router.post("/v1/users/login", async (req, res) => {
 router.patch("/v1/users/:id", auth, async (req, res) => {
   const _id = req.params.id;
   const updates = Object.keys(req.body);
-  const allUpdates = [
-    "username",
-    "email",
-    "dob",
-    "firstname",
-    "lastname",
-    "favorites",
-  ];
+  const allUpdates = ["dob", "firstname", "lastname", "favorites", "admin"];
   const isValidOp = updates.every((update) => allUpdates.includes(update));
 
   if (!isValidOp) {
@@ -90,7 +83,7 @@ router.patch("/v1/users/:id", auth, async (req, res) => {
     }
     if (req.user.admin || req.user._id === _id) {
       await req.user.updateOne(req.body);
-      return res.send(req.user);
+      return res.send("user update was successful!");
     } else {
       return res
         .status(400)

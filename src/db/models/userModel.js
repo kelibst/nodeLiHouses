@@ -50,7 +50,7 @@ const userSchema = new mongoose.Schema({
       const getPastFiveYears = new Date().getFullYear() - 5;
       if (
         !validator.isDate(value) ||
-        validator.isBefore(getPastFiveYears.toString())
+        !validator.isBefore(getPastFiveYears.toString())
       ) {
         throw new Error(
           "You did not enter a validate date, you should at least be 5 years old."
