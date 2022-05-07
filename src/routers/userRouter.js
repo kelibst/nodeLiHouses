@@ -67,7 +67,7 @@ router.post("/v1/users/login", async (req, res) => {
 router.patch("/v1/users/:id", auth, async (req, res) => {
   const _id = req.params.id;
   const updates = Object.keys(req.body);
-  const allUpdates = ["dob", "firstname", "lastname", "favorites", "admin"];
+  const allUpdates = ["dob", "firstname", "lastname", "favorites"];
   const isValidOp = updates.every((update) => allUpdates.includes(update));
 
   if (!isValidOp) {
