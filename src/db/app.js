@@ -1,3 +1,8 @@
 const mongoose = require("mongoose");
-
-mongoose.connect("mongodb://127.0.0.1:27017/lihouses-api");
+require("dotenv").config();
+let DB_URL = process.env.DB_URL;
+try {
+  mongoose.connect(DB_URL);
+} catch (error) {
+  console.log(error);
+}

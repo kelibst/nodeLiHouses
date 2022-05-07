@@ -3,6 +3,8 @@ const validator = require("validator");
 const bcrypt = require("bcryptjs");
 const { Schema } = mongoose;
 const jwt = require("jsonwebtoken");
+const bcryptSalt = process.env.BCRYPT_SALT;
+const JWTSecret = process.env.JWT_SECRET;
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -119,7 +121,7 @@ userSchema.statics.findByCredentials = async (email, password) => {
 
 userSchema.methods.generateAuthToken = async function () {
   const user = this;
-  const token = jwt.sign({ _id: user._id.toString() }, "thisismynewtoken");
+  const token = jwt.sign({ _id: user._id.toString() }, JWTSecret);
   user.tokens = user.tokens.concat({ token });
   await user.save();
   return token;
@@ -128,7 +130,7 @@ userSchema.methods.generateAuthToken = async function () {
 userSchema.pre("save", async function (next) {
   const user = this;
   if (user.isModified("password")) {
-    user.password = await bcrypt.hash(user.password, 8);
+    user.password = await bcrypt.hash(user.password, Number(bcryptSalt));
   }
   next();
 });
