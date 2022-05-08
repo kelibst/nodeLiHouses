@@ -2,6 +2,7 @@ const express = require("express");
 const User = require("../db/models/userModel");
 const router = new express.Router();
 const auth = require("../db/middlewares/auth");
+const crypto = require("crypto");
 
 router.post("/v1/users", async (req, res) => {
   try {
@@ -92,6 +93,20 @@ router.patch("/v1/users/:id", auth, async (req, res) => {
   } catch (e) {
     res.status(400).send(e);
   }
+});
+
+router.post("v1/users/me/password", async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user)
+      return res.status(404).send({ error: "that email does not exist!" });
+    if (user.tokens?.length) {
+      user.tokens = [];
+      await user.save();
+    }
+    let resetToken = crypto.randomBytes(32).toString("hex");
+  } catch (error) {}
 });
 
 router.patch("/v1/users/:id/password", auth, async (req, res) => {
