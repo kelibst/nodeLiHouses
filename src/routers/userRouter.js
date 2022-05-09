@@ -3,6 +3,9 @@ const User = require("../db/models/userModel");
 const router = new express.Router();
 const auth = require("../db/middlewares/auth");
 const crypto = require("crypto");
+const bcrypt = require("bcrypt");
+const sendEmail = require("../utils/email/sendEmail");
+const clientURL = process.env.CLIENT_URL;
 
 router.post("/v1/users", async (req, res) => {
   try {
@@ -95,7 +98,7 @@ router.patch("/v1/users/:id", auth, async (req, res) => {
   }
 });
 
-router.post("v1/users/me/password", async (req, res) => {
+router.get("v1/users/password/reset", async (req, res) => {
   const { email } = req.body;
   try {
     const user = await User.findOne({ email });
@@ -106,33 +109,52 @@ router.post("v1/users/me/password", async (req, res) => {
       await user.save();
     }
     let resetToken = crypto.randomBytes(32).toString("hex");
-  } catch (error) {}
-});
-
-router.patch("/v1/users/:id/password", auth, async (req, res) => {
-  const _id = req.params.id;
-  const updates = Object.keys(req.body);
-  const allUpdates = ["password"];
-  const isValidOp = updates.every((update) => allUpdates.includes(update));
-
-  if (!isValidOp) {
-    return res.status(400).status(400).send("Unable to update your password.");
-  }
-  try {
-    if (!req.user) {
-      return res.status(404).send("User was not found!");
-    }
-    if (req.user.admin || req.user._id === _id) {
-      await req.user.updateOne(req.body);
-      return res.send(req.user);
-    } else {
-      return res
-        .status(400)
-        .send({ error: "You need to be an admin to update a profile." });
-    }
-  } catch (e) {
+    const hash = await bcrypt.hash(resetToken, Number(bcryptSalt));
+    const userResetPassword = {
+      token: hash,
+    };
+    user.updateOne({
+      resetToken: userResetPassword,
+    });
+    const link = `${clientURL}/v1/users/passwordReset?token=${resetToken}&id=${user._id}`;
+    sendEmail(
+      user.email,
+      "Password Reset Request",
+      {
+        name: user.name,
+        link: link,
+      },
+      "./template/requestResetPassword.handlebars"
+    );
+  } catch (error) {
     res.status(400).send(e);
   }
 });
+
+// router.patch("/v1/users/:id/password", auth, async (req, res) => {
+//   const _id = req.params.id;
+//   const updates = Object.keys(req.body);
+//   const allUpdates = ["password"];
+//   const isValidOp = updates.every((update) => allUpdates.includes(update));
+
+//   if (!isValidOp) {
+//     return res.status(400).status(400).send("Unable to update your password.");
+//   }
+//   try {
+//     if (!req.user) {
+//       return res.status(404).send("User was not found!");
+//     }
+//     if (req.user.admin || req.user._id === _id) {
+//       await req.user.updateOne(req.body);
+//       return res.send(req.user);
+//     } else {
+//       return res
+//         .status(400)
+//         .send({ error: "You need to be an admin to update a profile." });
+//     }
+//   } catch (e) {
+//     res.status(400).send(e);
+//   }
+// });
 
 module.exports = router;

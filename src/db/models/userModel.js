@@ -69,6 +69,14 @@ const userSchema = new mongoose.Schema({
       },
     },
   ],
+  resetToken: {
+    token: {
+      type: String,
+    },
+    expirydate: {
+      type: Date,
+    },
+  },
   admin: {
     type: Boolean,
     required: true,
