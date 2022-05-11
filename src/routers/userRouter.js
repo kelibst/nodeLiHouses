@@ -6,6 +6,7 @@ const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const sendEmail = require("../utils/email/sendEmail");
 const clientURL = process.env.CLIENT_URL;
+const bcryptSalt = process.env.BCRYPT_SALT;
 
 router.post("/v1/users", async (req, res) => {
   try {
@@ -98,7 +99,7 @@ router.patch("/v1/users/:id", auth, async (req, res) => {
   }
 });
 
-router.get("v1/users/password/reset", async (req, res) => {
+router.post("/v1/users/password/reset", async (req, res) => {
   const { email } = req.body;
   try {
     const user = await User.findOne({ email });
@@ -126,8 +127,10 @@ router.get("v1/users/password/reset", async (req, res) => {
       },
       "./template/requestResetPassword.handlebars"
     );
+    res.send("password reset link was sent");
   } catch (error) {
-    res.status(400).send(e);
+    console.log(error);
+    res.status(400).send(error);
   }
 });
 
