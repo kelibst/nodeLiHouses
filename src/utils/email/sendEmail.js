@@ -2,16 +2,28 @@ const nodemailer = require("nodemailer");
 const handlebars = require("handlebars");
 const fs = require("fs");
 const path = require("path");
-
+const { google } = require("googleapis");
+const OAuth2 = google.auth.OAuth2;
+// set a refresh token
+const OAuth2_client = new OAuth2(
+  process.env.clientId,
+  process.env.clientSecret
+);
+OAuth2_client.setCredentials({ refresh_token: process.env.refresh_token });
 const sendEmail = async (email, subject, payload, template) => {
   try {
+    const accessToken = OAuth2_client.getAccessToken();
     // create reusable transporter object using the default SMTP transport
     const transporter = nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
-      port: 465,
+      service: "gmail",
       auth: {
-        user: process.env.EMAIL_USERNAME,
-        pass: process.env.EMAIL_PASSWORD, // naturally, replace both with your real credentials or an application-specific password
+        type: "OAuth2",
+        user: process.env.user,
+        clientId: process.env.clientId,
+        clientSecret: process.env.clientSecret,
+        refreshToken: process.env.refresh_token,
+        accessToken: accessToken,
       },
     });
 
@@ -19,7 +31,7 @@ const sendEmail = async (email, subject, payload, template) => {
     const compiledTemplate = handlebars.compile(source);
     const options = () => {
       return {
-        from: process.env.FROM_EMAIL,
+        from: `The best of <${process.env.user}>`,
         to: email,
         subject: subject,
         html: compiledTemplate(payload),
@@ -29,11 +41,11 @@ const sendEmail = async (email, subject, payload, template) => {
     // Send email
     transporter.sendMail(options(), (error, info) => {
       if (error) {
+        console.log(error, "transporteer error");
         return error;
       } else {
-        return res.status(200).json({
-          success: true,
-        });
+        console.log(success, "transporter success");
+        return "success";
       }
     });
   } catch (error) {

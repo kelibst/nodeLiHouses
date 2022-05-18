@@ -118,7 +118,7 @@ router.post("/v1/users/password/reset", async (req, res) => {
       resetToken: userResetPassword,
     });
     const link = `${clientURL}/v1/users/passwordReset?token=${resetToken}&id=${user._id}`;
-    sendEmail(
+    const sendMail = await sendEmail(
       user.email,
       "Password Reset Request",
       {
@@ -127,6 +127,7 @@ router.post("/v1/users/password/reset", async (req, res) => {
       },
       "./template/requestResetPassword.handlebars"
     );
+    console.log(sendMail);
     res.send("password reset link was sent");
   } catch (error) {
     console.log(error);
